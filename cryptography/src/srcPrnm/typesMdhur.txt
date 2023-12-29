@@ -1,0 +1,76 @@
+type httpReqLogin = {
+    "42":string,
+    "02":string,
+    "03":string,
+    "01":string,
+    "103":string
+}
+type httpReqGenerateOTP = {
+  "01":string,
+  "42":string,
+  "03":string,
+  "75":string,
+}
+type Props = {
+  value: string;
+  valueLength: number;
+  onChange: (value: string) => void;
+}
+type LoginhttpRequest = {
+    val1:Map,
+    val2:Map
+}
+type resdecrypt= {
+    98:string,
+    99:string,
+    "33":logindetails,
+}
+type logindetails={
+    "06":string,
+    "08":string,
+    "32":string,
+    "46":string [],
+    "62":string,
+    "78":string,
+    "79":string,
+    "84" :branchdet [],
+    "88":number,
+    "92":string,
+    "103" : filler,
+    "98":string,
+    "99":string,
+  }
+  type dates ={
+    "0":string,
+    "1":string,
+    "2":string,
+    "3":string,
+    "4":string,
+    "5":string,
+    "6":string,
+  }
+
+  type branchdet ={
+    "78":number,
+    "79":string,
+    "80":string,
+    "81":string,
+    "82":string,
+    "83":string,
+  }
+ 
+  type filler={
+      "09":string,
+      "53":string,
+      "54":string,
+      "60":string,
+      "61":string,
+      "62":string,
+      "63":string,
+      "63A":string,
+      "64":string,
+      "65":string,
+      "70":string,
+      "901":string,
+  }
+

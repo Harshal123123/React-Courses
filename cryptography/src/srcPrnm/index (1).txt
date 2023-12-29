@@ -1,0 +1,124 @@
+import React, { useEffect, useState, useContext, useNavigate } from "react";
+import {
+  aes_encrypt,
+  rsa_decrypt,
+  rsa_generateKeyPair,
+} from "./security";
+import request from "./request";
+// import response from "../services/request";
+// import request from "../services/request";
+// import { context } from "../AppContext";
+// import { Router, Routes, useNavigate } from "react-router-dom";
+// import { Bars, RotatingLines } from "react-loader-spinner";
+// import Loader from 'react-loader-spinner';
+// import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
+
+function Initial({ setisLoggedIn }: any) {
+  const [isLoading, setIsLoading] = React.useState(true);
+//   const { setReverse, setBitool, bitool } = useContext(context);
+
+  const navigate = useNavigate();
+  useEffect(() => {
+    init();
+  }, []);
+
+  //const myContext = useContext(GlobalProvider);
+  const init = async () => {
+    await ping();
+    //const rsa =  rsa_generateKeyPair(); // generate
+    //console.log("rsa",rsa);
+    //await bonjour(rsa.public_xml,rsa);
+  };
+
+  const ping = async () => {
+    //testing connection async ensures that function returns a promise
+    const request_body: httpRequest = {
+      val1: JSON.stringify({ "97": "29" }),
+      val2: "",
+    };
+
+    console.log("Ping request body", JSON.stringify(request_body));
+    const response = await request(JSON.stringify(request_body), {
+      Channel: "901",
+    }); //sending channel to maintain session
+    const test: any = response;
+    console.log("ping response", response);
+
+    const testResponse: resTestConnection = {
+      "98": test["98"],
+      "99": test["99"],
+    }; //98:connected 99:true
+    if (testResponse[99] !== "True") {
+      throw new Error(`Request Unsuccessful ${testResponse[98]}`);
+    } else {
+      await bonjour(); //Using await pauses the execution of its surrounding async function until the promise is settled (fulfilled or rejected).
+    }
+  };
+
+  const bonjour = async () => {
+    const rsa = rsa_generateKeyPair();
+    console.log("rsa bonjour", rsa);
+    const publckey = rsa.public_xml;
+    const options: httpReqBonjour = {
+      "00": "TUlJRGd6",
+      "01": "TAB",
+      "03": "",
+      "76": publckey,
+    };
+    
+    const request_body: httpRequest = {
+      val1: JSON.stringify({ "97": "20" }),
+      val2: JSON.stringify(options),
+    };
+    console.log("bonjour request body", request_body);
+
+    const response = await request(
+      JSON.stringify(request_body),
+      { Channel: "901" },
+      (bitool: string) => {
+        console.log("bitool", bitool);
+        setBitool(bitool);
+      }
+    );
+
+    // setBitool(response.headers.get('Bitool'));
+    // const responseData:httpResponse = await response.json();
+    const _bonjour: any = response;
+    console.log("_bonjour", response);
+
+    const bonjourResponse: resBonjour = {
+      "98": _bonjour["98"],
+      "99": _bonjour["99"],
+      "77": _bonjour["77"],
+    };
+    if (bonjourResponse[99] !== "True") {
+      throw new Error(`Request Unsuccessful ${bonjourResponse[98]}`);
+    }
+    setReverse(rsa_decrypt(rsa.privatekey, bonjourResponse[77]));
+    //setLoginAuthenticated(true);
+    setisLoggedIn(true);
+    setIsLoading(false);
+    navigate("/login");
+  };
+  return (
+    <div>
+      <h1> </h1>
+      {isLoading ? (
+        <div
+          className="container"
+          style={{
+            position: "fixed",
+            top: "40%",
+            left: "45%",
+            transform: "translate(-50%,-50)",
+          }}
+        >
+          <RotatingLines strokeColor="darkblue" strokeWidth="5" />
+        </div>
+      ) : (
+        <></>
+      )}
+    </div>
+  );
+}
+export default Initial;

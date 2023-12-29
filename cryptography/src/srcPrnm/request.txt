@@ -1,0 +1,58 @@
+import { baseURL } from "./config";
+
+const request = async (
+  payload: string,
+  extra: HeadersInit,
+  ishandshaking?: Function
+) => {
+  const response = await fetch(baseURL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "access-control-allow-origin": "*",
+      "access-control-method": "post",
+      ...extra,
+    },
+    body: payload,
+  });
+  // console.log("request.tsx",response);   //rem
+  _checkStatusCode(response);    //rem
+
+  ishandshaking && ishandshaking(response.headers.get("Bitool"));
+
+  const responseData: httpResponse = await response.json();
+  try {
+    // console.log("inside try response.json",responseData);
+    //  console.log( "JSON.parse",JSON.parse(responseData.d));
+
+    return JSON.parse(responseData.d);
+  } catch (ex) {
+    return responseData.d;
+  }
+  //_checktruecode(responseData.d)
+};
+
+const _checkStatusCode = (response: Response) => {
+  if (response.status !== 200) {
+    throw new Error("Fetch failed with code" + response.status);
+  }
+};  
+
+export default request;
+
+
+// MYCODE
+  const headers = {
+      "Content-Type": "application/json",
+      "access-control-allow-origin": "*",
+      "access-control-method": "post",
+    };
+    const response = await axios.post(
+      baseURL, // URL should be passed here
+      payload,
+      {
+        headers: headers,
+        ...extra,
+      }
+    );
+    //

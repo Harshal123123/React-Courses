@@ -1,0 +1,100 @@
+import forge from "node-forge";
+//import { useArrayBuffer } from '../AppContext';
+// export const rsa_generateKeyPair =   (): RSAKP => {
+export const rsa_generateKeyPair = () => {
+
+  const rsa = forge.pki.rsa;
+  const rsa_keypair = {
+    privatekey: undefined,
+    publickey: undefined,
+    public_xml: "",
+  };
+  
+  const keypair = rsa.generateKeyPair({ bits: 1024, e: 0x10001 });
+  console.log("keypair", keypair);
+
+  const publickeytohex = keypair.publicKey.n.toString(16);
+  console.log("publickeytohex", publickeytohex);
+  const publickeytobytes = forge.util.hexToBytes(publickeytohex);
+  console.log("publickeytobytes", publickeytobytes);
+  const publicKeyEncode = forge.util.encode64(publickeytobytes);
+  console.log("publicKeyEncode", publicKeyEncode);
+  
+  rsa_keypair.publickey = keypair.publicKey;
+  rsa_keypair.privatekey = keypair.privateKey;
+
+  rsa_keypair.public_xml = `<RSAKeyValue><Modulus>${publicKeyEncode}</Modulus><Exponent>${"AQAB"}</Exponent></RSAKeyValue>`;
+  return rsa_keypair;
+};
+
+export const rsa_decrypt = (
+  privatekey: forge.pki.rsa.PrivateKey,
+  cypherText: string
+): ArrayBufferLike => {
+  const result = privatekey.decrypt(forge.util.decode64(cypherText));
+  console.log("decrypted rsa result", result);
+  console.log(
+    "decrypted rsa result to arraybuffer",
+    base64ToArrayBuffer(result)
+  );
+  return base64ToArrayBuffer(result);
+};
+
+function base64ToArrayBuffer(result: string): ArrayBufferLike {
+  const binaryString = result;
+  const bytes = new Uint8Array(binaryString.length);
+  for (var i = 0; i < binaryString.length; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+  return bytes.buffer;
+}
+
+function _arrayBufferToBase64(buffer: ArrayBuffer): string {
+  let binary = "";
+  const bytes = new Uint8Array(buffer);
+  const len = bytes.byteLength;
+  for (let i = 0; i < len; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return binary;
+}
+function parsemessage(result: string) {
+  const ivEndIndex = result.lastIndexOf("==");
+  const iv  
+  const key = result.substring(ivEndIndex + 2);
+  return {
+    iv: iv,
+    key: key,
+  };
+}
+
+export const aes_encrypt = (
+  reverse: ArrayBufferLike,
+  plainText: string
+): string => {
+  const aes = parsemessage(_arrayBufferToBase64(reverse));
+  const cipher = forge.cipher.createCipher(
+    "AES-CBC",
+    forge.util.decode64(aes.key)
+  );
+  cipher.start({ iv: forge.util.decode64(aes.iv) });
+  cipher.update(forge.util.createBuffer(plainText));
+  cipher.finish();
+  const encrypted = cipher.output;
+  // console.log("security.ts encrypted",encrypted);
+
+  return forge.util.encode64(encrypted.getBytes());
+};
+export const aes_decrypt = (reverse: ArrayBufferLike, cypherText: string) => {
+  const aes = parsemessage(_arrayBufferToBase64(reverse));
+  const decipher = forge.cipher.createDecipher(
+    "AES-CBC",
+    forge.util.decode64(aes.key)
+  );
+  decipher.start({ iv: forge.util.decode64(aes.iv) });
+  const cl = forge.util.decode64(cypherText);
+
+  decipher.update(forge.util.createBuffer(cl));
+  decipher.finish(); // check 'result' for true/false
+  return decipher.output.data;
+};

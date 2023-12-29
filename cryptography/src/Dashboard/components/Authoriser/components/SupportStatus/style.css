@@ -1,0 +1,11 @@
+.maker-container .apexcharts-tooltip.apexcharts-theme-dark {
+  color: #333333;
+  background-color: #333333;
+}
+.maker-container
+  .apexcharts-legend.apx-legend-position-bottom.apexcharts-align-center {
+  justify-content: center;
+}
+.maker-container .apexcharts-legend-text {
+  padding-left: 20px;
+}
